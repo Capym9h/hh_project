@@ -1,7 +1,6 @@
 hhvenv/
 .env
 test_test.ipynb
-vacancies.json
 readme.txt
 main_.py
 test.ipynb
