@@ -21,7 +21,7 @@ class CurrencyHandler:
                 with open(self.cache_file, 'r', encoding='utf-8') as f:
                     self.currency_cache = json.load(f)
             except Exception as e:
-                print(f'Ошибка: Загрузка файла кэша валют закончилось неудачей, ошибка: {e}')
+                print(f'❌ Ошибка: Загрузка файла кэша валют закончилось неудачей, ошибка: {e}')
                 self.currency_cache = {}
     
     def _save_cache(self) -> None:
@@ -31,7 +31,7 @@ class CurrencyHandler:
             with open(self.cache_file, 'w', encoding='utf-8') as f:
                 json.dump(self.currency_cache, f, ensure_ascii=False, indent=2)
         except Exception as e:
-            print(f'Ошибка: Не удалось сохранить курс валют в файл кэша: {e}')
+            print(f'❌ Ошибка: Не удалось сохранить курс валют в файл кэша: {e}')
     
     def _update_currency_rates(self) -> None:
         """Обновление курсов валют с ЦБ РФ"""
@@ -56,7 +56,7 @@ class CurrencyHandler:
             self.updated_currency = True
             
         except Exception as e:
-            print(f'Ошибка: Не удалось обновить курсы валют: {e}')
+            print(f'❌ Ошибка: Не удалось обновить курсы валют: {e}')
     
     def get_currency_rate(self, currency: str) -> float:
         """Получение курса валюты

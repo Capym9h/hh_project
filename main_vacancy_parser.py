@@ -73,13 +73,13 @@ class VacancyParserManager:
                 parsed_data.append(parsed_vacancy)
                 
             except Exception as e:
-                print(f'Ошибка: Не удалось спарсить {vacancy_data.get("id", "unknown")}: {e}')
+                print(f'❌ Ошибка: Не удалось спарсить {vacancy_data.get("id", "unknown")}: {e}')
         
         # Создаем DataFrame
         df = pd.DataFrame(parsed_data)
         
         if not df.empty:
-            print(f"Успех: Парсинг вакансий закончен. Получено {len(df)} вакансий по должности '{job_title}'")
+            print(f"✅ Успех: Парсинг вакансий закончен. Получено {len(df)} вакансий по должности '{job_title}'")
             # Добавляем информацию о том, для какой вакансии парсили
             df['parsed_for_job'] = job_title
             # Фильтрация IT-вакансий
@@ -129,7 +129,7 @@ class VacancyParserManager:
             print(f"\nВсего полученных вакансий: {len(combined_df)}")
             return combined_df
         else:
-            print("Ошибка: Парсинг не удался")
+            print("❌ Ошибка: Парсинг не удался")
             return pd.DataFrame()
     
     def update_geo_data(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -146,7 +146,7 @@ class VacancyParserManager:
         # Сохраняем кэш геоданных
         self.geo_handler.save_cache()
         
-        print("Успех: Геоданные обновлены")
+        print("✅ Успех: Геоданные обновлены")
         return updated_df
     
     def save_data(self, df: pd.DataFrame, save_csv: bool = True, save_excel: bool = True, 
@@ -170,7 +170,7 @@ class VacancyParserManager:
                 df.to_csv(csv_path, index=False)
                 print(f"✓ CSV файл сохранен {csv_path}")
             except Exception as e:
-                print(f"Ошибка: Не удалось сохранить CSV: {e}")
+                print(f"❌ Ошибка: Не удалось сохранить CSV: {e}")
         
         # Сохранение в Excel
         if save_excel:
@@ -179,7 +179,7 @@ class VacancyParserManager:
                 df.to_excel(excel_path, index=False)
                 print(f"✓ Excel файл сохранен {excel_path}")
             except Exception as e:
-                print(f"Ошибка: Не удалось сохранить Excel: {e}")
+                print(f"❌ Ошибка: Не удалось сохранить Excel: {e}")
         
         # Сохранение в базу данных
         if save_db:
@@ -191,15 +191,15 @@ class VacancyParserManager:
                 if self.db_handler.save_dataframe_to_db(df):
                     # Объединяем с основной таблицей
                     if self.db_handler.merge_tables():
-                        print("✓ Данные сохранены в базу данных")
+                        print("✅ Успех: Данные сохранены в базу данных")
                     else:
-                        print("Ошибка: Не удалось объеденить таблицы в базеданных")
+                        print("❌ Ошибка: Не удалось объеденить таблицы в базеданных")
                 else:
-                    print("Ошибка: Не удалось сохраниь базуданных")
+                    print("❌ Ошибка: Не удалось сохраниь базуданных")
             except Exception as e:
-                print(f"Ошибка: Возникла ошибка при работе с базой данных: {e}")
+                print(f"❌ Ошибка: Возникла ошибка при работе с базой данных: {e}")
         
-        print("Успех: Данные сохранены")
+        print("✅ Успех: Данные сохранены")
     
     def convert_salaries_to_rub(self, df: pd.DataFrame) -> pd.DataFrame:
         """Конвертация всех зарплат в рубли        
@@ -319,9 +319,9 @@ def main():
             parser_manager.print_statistics(df)
 
         parser_manager.save_data(df, save_csv=SAVE_CSV, save_excel=SAVE_EXCEL, save_db=SAVE_DB)# Сохраняем данные
-        print("\nУспех: Парсинг закончен!")
+        print("\n✅ Успех: Парсинг закончен!")
     else:
-        print("Ошибка: Данные не найдены.")
+        print("❌ Ошибка: Данные не найдены.")
 
 
 if __name__ == "__main__":

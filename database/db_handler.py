@@ -35,7 +35,7 @@ class DatabaseHandler:
                 conn.commit()
                 return result
         except Exception as e:
-            print(f'Ошибка выполения запроса: {e}')
+            print(f'❌ Ошибка выполения запроса: {e}')
             print(f'Запрос: {query}')
             return None
     
@@ -93,7 +93,7 @@ class DatabaseHandler:
                 df.to_sql(table_name, con=conn, if_exists=if_exists, index=False)
                 return True
         except Exception as e:
-            print(f'Ошибка: не удалось сохранить датафрейм в базуданных: {e}')
+            print(f'❌ Ошибка: не удалось сохранить датафрейм в базуданных: {e}')
             return False
     
     def merge_tables(self, source_table: str = 'full_df', target_table: str = 'full_sql') -> bool:
@@ -108,7 +108,7 @@ class DatabaseHandler:
         target_columns = self.execute_query(f"PRAGMA table_info({target_table})")
         
         if not source_columns or not target_columns:
-            print("Ошибка: Не удалось получить информацию")
+            print("❌ Ошибка: Не удалось получить информацию")
             return False
         
         # Извлекаем названия столбцов
@@ -119,7 +119,7 @@ class DatabaseHandler:
         common_columns = [col for col in source_col_names if col in target_col_names]
         
         if not common_columns:
-            print("Ошибка: Нет совпадающих колонок")
+            print("❌ Ошибка: Нет совпадающих колонок")
             return False
         
         # Создаем запрос с явным указанием столбцов
@@ -161,5 +161,5 @@ class DatabaseHandler:
                 df = pd.read_sql_query(f"SELECT * FROM {table_name}", conn)
                 return df
         except Exception as e:
-            print(f'Ошибка: Не удалось загрузить датафрейм из базыданных {e}')
+            print(f'❌ Ошибка: Не удалось загрузить датафрейм из базыданных {e}')
             return None 

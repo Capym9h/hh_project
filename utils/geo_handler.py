@@ -22,7 +22,7 @@ class GeoHandler:
                 with open(self.cache_file, 'r', encoding='utf-8') as f:
                     self.geo_cache = json.load(f)
             except Exception as e:
-                print(f'Ошибка: Загрузка файла ГЕОКЭШ не удалась: {e}')
+                print(f'❌ Ошибка: Загрузка файла ГЕОКЭШ не удалась: {e}')
                 self.geo_cache = {}
         else:
             print('Внимание: Файл с ГЕО КЭШ не найден')
@@ -56,10 +56,10 @@ class GeoHandler:
             if location:
                 result = f'[{str(location.latitude)}, {str(location.longitude)}]'
             else:
-                print(f'Ошибка: Неудалось получить геоточки для: {city}')
+                print(f'❌ Ошибка: Неудалось получить геоточки для: {city}')
                 result = None
         except Exception as e:
-            print(f'Ошибка: Запрос к geopy по городу {city} вернул ошибку: {e}')
+            print(f'❌ Ошибка: Запрос к geopy по городу {city} вернул ошибку: {e}')
             result = None
         
         # Обновляем кэш
@@ -89,10 +89,10 @@ class GeoHandler:
                 if location:
                     result = f'[{str(location.latitude)}, {str(location.longitude)}]'
                 else:
-                    print(f'Ошибка: Неудалось получить геоточки для: {city}')
+                    print(f'❌ Ошибка: Неудалось получить геоточки для: {city}')
                     result = None
         except Exception as e:
-            print(f'Ошибка: Запрос к geopy по городу {city} вернул ошибку: {e}')
+            print(f'❌ Ошибка: Запрос к geopy по городу {city} вернул ошибку: {e}')
             result = None
         
         # Обновляем кэш

@@ -33,7 +33,7 @@ class HeadHunterAPI:
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
-            print(f'Ошибка: Запрос к {url} вернул ошибку: {e}')
+            print(f'❌ Ошибка: Запрос к {url} вернул ошибку: {e}')
             return {}
 
     def search_vacancies(self, job_title: str, page: int = 0, per_page: int = PER_PAGE, 
@@ -82,7 +82,7 @@ class HeadHunterAPI:
         response = self.search_vacancies(job_title, page=current_page)
         
         if not response:
-            print(f'Ошибка: Не удалось получить вакансии по должности: {job_title}')
+            print(f'❌ Ошибка: Не удалось получить вакансии по должности: {job_title}')
             return vacancy_ids
         
         total_vacancies = response.get('found', 0) #количество вакансий
@@ -102,7 +102,7 @@ class HeadHunterAPI:
                 for item in response['items']:
                     vacancy_ids.append(item['id'])
         
-        print(f'Успех: ID вакансий {len(vacancy_ids)} для должности "{job_title}" спарсины')
+        print(f'✅ Успех: ID вакансий {len(vacancy_ids)} для должности "{job_title}" спарсины')
         return vacancy_ids
     
     def get_vacancies_details(self, vacancy_ids: List[str]) -> List[Dict[str, Any]]:
@@ -119,8 +119,8 @@ class HeadHunterAPI:
                 if vacancy_data:
                     vacancies_data.append(vacancy_data)
             except Exception as e:
-                print(f'Ошибка: Обработка вакансиис ID {vac_id} вернуло ошибку: {e}')
+                print(f'❌ Ошибка: Обработка вакансиис ID {vac_id} вернуло ошибку: {e}')
         
-        print(f'Успех: Получено {len(vacancies_data)} вакансий')
+        print(f'✅ Успех: Получено {len(vacancies_data)} вакансий')
         return vacancies_data
     
