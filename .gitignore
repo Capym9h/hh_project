@@ -4,3 +4,4 @@ readme.txt
 .venv/
 dag.py
 readme.md
+.env
