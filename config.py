@@ -6,7 +6,7 @@ env_vars = dotenv_values('.env')
 
 #Настройки API
 BASE_URL = 'https://api.hh.ru/vacancies'
-USER_AGENT = env_vars.get('USER_AGENT', '')
+USER_AGENT = env_vars.get('USER_AGENT', '')  
 PER_PAGE = 100
 
 #Сохранение файлов
