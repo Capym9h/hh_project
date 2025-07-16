@@ -102,7 +102,7 @@ class HeadHunterAPI:
                 for item in response['items']:
                     vacancy_ids.append(item['id'])
         
-        print(f'✅ Успех: ID вакансий {len(vacancy_ids)} для должности "{job_title}" спарсины')
+        print(f'✅ Успех: ID вакансий {len(vacancy_ids)} для должности "{job_title}" получены')
         return vacancy_ids
     
     def get_vacancies_details(self, vacancy_ids: List[str]) -> List[Dict[str, Any]]:

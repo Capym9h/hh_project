@@ -1,4 +1,5 @@
 import os
+import time
 import pandas as pd
 import numpy as np
 from typing import List, Optional, Dict, Any
@@ -335,4 +336,7 @@ def main():
 
 if __name__ == "__main__":
     os.system('cls')
+    time_start = time.time()
     main() 
+    print('='*50)
+    print(f'⌛ Время выполнения {(time.time()-time_start)//60 } минут')
