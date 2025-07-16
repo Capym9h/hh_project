@@ -6,42 +6,46 @@ env_vars = dotenv_values('.env')
 
 #Настройки API
 BASE_URL = 'https://api.hh.ru/vacancies'
-USER_AGENT = env_vars.get('USER_AGENT', '')  
+USER_AGENT = env_vars.get('USER_AGENT', '')
 PER_PAGE = 100
 
 #Сохранение файлов
 SAVE_CSV = True
 SAVE_DB = True
-SAVE_EXCEL = True
+SAVE_EXCEL = False
 
 #Пути до файлов кэша
-CURRENCY_CACHE_FILE = (env_vars.get('CACHE_PATH') or 'resources/') + 'currency_cache.json'
-GEO_CACHE_FILE = (env_vars.get('CACHE_PATH') or 'resources/') + 'geo_cache.json'
-PATH_TO_YANDEXDISC = env_vars.get('PATH_TO_YANDEXDISC', 'resources')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CURRENCY_CACHE_FILE = os.path.join(BASE_DIR, 'resources', 'currency_cache.json')
+GEO_CACHE_FILE = os.path.join(BASE_DIR, 'resources', 'geo_cache.json')
+DBNAME = os.path.join(BASE_DIR, 'resources', 'hh_sqllite.db')
+CSV_FILE_PATH = os.path.join(BASE_DIR, 'resources', 'full_df.csv')
+EXCEL_FILE_PATH = os.path.join(BASE_DIR, 'resources', 'full_df.xslx')
 
-#Путь и имя базы данных
-DBNAME = 'resources/hh_sqllite.db'
 
 #Настройки парсинга
 DEFAULT_TIME_DELAY = 0.4
 DEFAULT_GEO_TIMEOUT = 10
 
+
 #Список ролей
 DEFAULT_VACANCIES = [
-    'Аналитик данных',
-    'Data Scientist',
-    'BI аналитик',
-    'Системный аналитик',
-    'Дата-сайентист',
-    'Бизнес-аналитик',
-    'Продуктовый аналитик',
+    # 'Аналитик данных',
+    # 'Data Scientist',
+    # 'BI аналитик',
+    # 'Системный аналитик',
+    # 'Дата-сайентист',
+    # 'Бизнес-аналитик',
+    # 'Продуктовый аналитик',
     'Data инженер'
 ]
+
 
 # Исключения для валют
 CURRENCY_EXCEPTIONS = {
     'BYR': 'BYN'
 }
+
 
 #Перевод зарплат в месячный эквивалент при размещении зарплата в час/год
 SALARY_COEFFICIENTS = {
@@ -49,6 +53,7 @@ SALARY_COEFFICIENTS = {
     'год': 1/12,
     'месяц': 1
 }
+
 
 #Ключевые слова для определения уровня, при необходимости изменить или расширить
 GRADE_KEYWORDS = {
@@ -59,11 +64,14 @@ GRADE_KEYWORDS = {
     'Team Lead': ['тимлид', 'teamlead', 'руководитель', 'lead', 'главный']
 }
 
+
 # Настройки извлечения навыков из описания
 EXTRACT_SKILLS_FROM_DESCRIPTION = True
 
+
 # Показать статистику после завершения работы парсера
 SHOW_STATS = True
+
 
 IT_PROF_ROLES = [
     'Разработчик', 'Программист', 'Data Scientist', 'Аналитик данных', 'BI аналитик',

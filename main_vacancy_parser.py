@@ -9,7 +9,10 @@ from models.vacancy_parser import VacancyParser
 from utils.currency_handler import CurrencyHandler
 from utils.geo_handler import GeoHandler
 from database.db_handler import DatabaseHandler
-from config import DEFAULT_VACANCIES, IT_PROF_ROLES, SHOW_STATS, SAVE_DB, SAVE_CSV, SAVE_EXCEL
+from config import SAVE_DB, SAVE_CSV, SAVE_EXCEL
+from config import CSV_FILE_PATH, EXCEL_FILE_PATH, BASE_DIR
+from config import DEFAULT_VACANCIES, IT_PROF_ROLES, DEFAULT_TIME_DELAY
+from config import SHOW_STATS
 
 
 class VacancyParserManager:
@@ -149,7 +152,9 @@ class VacancyParserManager:
         print("✅ Успех: Геоданные обновлены")
         return updated_df
     
-    def save_data(self, df: pd.DataFrame, save_csv: bool = True, save_excel: bool = True, 
+    def save_data(self, df: pd.DataFrame, 
+                  save_csv: bool = True, 
+                  save_excel: bool = True, 
                   save_db: bool = True) -> None:
         """Сохранение данных в различные форматы
         Args:
@@ -166,18 +171,18 @@ class VacancyParserManager:
         # Сохранение в CSV
         if save_csv:
             try:
-                csv_path = 'resources/full_df.csv'
-                df.to_csv(csv_path, index=False)
-                print(f"✓ CSV файл сохранен {csv_path}")
+                # csv_path = 'resources/full_df.csv'
+                df.to_csv(CSV_FILE_PATH, index=False)
+                print(f"✅ Успех: CSV файл сохранен {CSV_FILE_PATH}")
             except Exception as e:
                 print(f"❌ Ошибка: Не удалось сохранить CSV: {e}")
         
         # Сохранение в Excel
         if save_excel:
             try:
-                excel_path = f"'resources/my.xlsx"
-                df.to_excel(excel_path, index=False)
-                print(f"✓ Excel файл сохранен {excel_path}")
+                # excel_path = f"'resources/my.xlsx"
+                df.to_excel(EXCEL_FILE_PATH, index=False)
+                print(f"✓ Excel файл сохранен {EXCEL_FILE_PATH}")
             except Exception as e:
                 print(f"❌ Ошибка: Не удалось сохранить Excel: {e}")
         
@@ -305,7 +310,11 @@ class VacancyParserManager:
 
 
 def main():
-    parser_manager = VacancyParserManager(time_delay=0.4)
+    
+    if not os.path.exists(os.path.join(BASE_DIR, 'resources')):
+        os.mkdir(os.path.join(BASE_DIR,'resources'))
+
+    parser_manager = VacancyParserManager(time_delay=DEFAULT_TIME_DELAY)
     job_titles = DEFAULT_VACANCIES
     
     #запуск парсера вакансий
