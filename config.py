@@ -96,3 +96,5 @@ IT_PROF_ROLES = [
     'Unity', 'Unreal', '1C', 'SAP', 'Oracle', 'SQL', 'DWH', 'ETL', 'Big Data',
     'Cloud', 'Kubernetes', 'Docker', 'Network engineer', 'Security', 'Информационная безопасность'
 ]
+
+#экстракция скилов происходит из описания вакансии. Ключевые слова можно найти по пути unils/skill_extractor.py

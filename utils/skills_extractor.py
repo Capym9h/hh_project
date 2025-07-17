@@ -10,8 +10,8 @@ class SkillsExtractor:
         # Список популярных технологий и инструментов
         self.tech_skills = {
             # Языки программирования
-            'python', 'java', 'javascript', 'js', 'typescript', 'c++', 'c#', 'php', 'go', 'rust', 'kotlin', 'swift',
-            'scala', 'r', 'matlab', 'perl', 'ruby', 'dart', 'elixir', 'haskell', 'clojure', 'f#', 'vb.net',
+            'python', 'java', 'javascript', 'js', 'typescript', 'c++', 'c#', 'php', 'go', 'rust', 'kotlin', 'swift','uml',
+            'scala', 'r', 'matlab', 'perl', 'ruby', 'dart', 'elixir', 'haskell', 'clojure', 'f#', 'vb.net', 'draw', '1c', '1с',
             
             # Фреймворки и библиотеки
             'django', 'flask', 'fastapi', 'spring', 'react', 'vue', 'angular', 'node.js', 'express', 'laravel',
@@ -19,7 +19,7 @@ class SkillsExtractor:
             
             # Базы данных
             'postgresql', 'mysql', 'sqlite', 'mongodb', 'redis', 'elasticsearch', 'cassandra', 'neo4j',
-            'oracle', 'sql server', 'mariadb', 'dynamodb', 'cosmos db', 'firebase', 'supabase',
+            'oracle', 'sql server', 'mariadb', 'dynamodb', 'cosmos db', 'firebase', 'supabase','sql','clickhouse',
             
             # Облачные платформы
             'aws', 'azure', 'gcp', 'google cloud', 'heroku', 'digitalocean', 'linode', 'vultr',
@@ -33,12 +33,13 @@ class SkillsExtractor:
             
             # Аналитика и ML
             'pandas', 'numpy', 'scikit-learn', 'tensorflow', 'pytorch', 'keras', 'matplotlib', 'seaborn',
-            'plotly', 'bokeh', 'jupyter', 'colab', 'spark', 'hadoop', 'kafka', 'airflow', 'dbt',
+            'plotly', 'bokeh', 'jupyter', 'colab', 'spark', 'hadoop', 'kafka', 'airflow', 'dbt','dax',
             'tableau', 'power bi', 'looker', 'metabase', 'grafana', 'kibana', 'splunk', 'excel',
+            'point','office', 'datalens','bi-системы', 'scipy','тесты',
             
             # Веб-технологии
             'html', 'css', 'sass', 'less', 'bootstrap', 'tailwind', 'webpack', 'vite', 'babel',
-            'jquery', 'lodash', 'axios', 'fetch', 'rest api', 'graphql', 'soap', 'grpc',
+            'jquery', 'lodash', 'axios', 'fetch', 'rest api', 'graphql', 'soap', 'grpc','xml',
             
             # Мобильная разработка
             'react native', 'flutter', 'xamarin', 'ionic', 'cordova', 'phonegap', 'swift ui',
@@ -56,13 +57,13 @@ class SkillsExtractor:
             'docker', 'kubernetes', 'helm', 'rancher', 'openshift', 'nomad', 'consul', 'etcd',
             
             # Сети и безопасность
-            'nginx', 'apache', 'traefik', 'istio', 'envoy', 'vault', 'keycloak', 'oauth',
-            'jwt', 'ssl', 'tls', 'vpn', 'firewall', 'waf', 'ddos protection',
+            'nginx', 'apache', 'traefik', 'istio', 'envoy', 'vault', 'keycloak', 'oauth','swagger',
+            'jwt', 'ssl', 'tls', 'vpn', 'firewall', 'waf', 'ddos protection','api','json',
             
             # Другие инструменты
-            'terraform', 'ansible', 'chef', 'puppet', 'salt', 'vagrant', 'virtualbox', 'vmware',
-            'linux', 'ubuntu', 'centos', 'debian', 'red hat', 'suse', 'windows server',
-            'macos', 'ios', 'android', 'unity', 'unreal engine', 'blender', 'maya'
+            'terraform', 'ansible', 'chef', 'puppet', 'salt', 'vagrant', 'virtualbox', 'vmware', 'etl','ui',
+            'linux', 'ubuntu', 'centos', 'debian', 'red hat', 'suse', 'windows server','sap','битрикс',
+            'macos', 'ios', 'android', 'unity', 'unreal engine', 'blender', 'maya', 'aris', 'epc', 'bpmn','erp'
         }
         
         # Список мягких навыков
@@ -85,16 +86,15 @@ class SkillsExtractor:
         """Очистка текста от HTML тегов и лишних символов"""
         if not text:
             return ""
-        
+
         # Удаляем HTML теги
         soup = BeautifulSoup(text, 'html.parser')
         text = soup.get_text()
-        
         text = text.lower()
         text = re.sub(r'\s+', ' ', text)
-        
         return text.strip()
     
+
     def extract_skills_from_text(self, text: str) -> List[str]:
         """Извлечение навыков из текста"""
         if not text:
