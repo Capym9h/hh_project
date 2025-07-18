@@ -42,10 +42,11 @@ class VacancyParserManager:
             filtered = pd.DataFrame(filtered)
         return filtered.reset_index(drop=True)
     
-    def parse_single_vacancy(self, job_title: str, max_pages: Optional[int] = None) -> pd.DataFrame:
+    def parse_single_vacancy(self, job_id: str, job_title:str, max_pages: Optional[int] = None) -> pd.DataFrame:
         """Парсинг вакансий
         Args:
-            job_title: Название вакансии
+            job_id: ID профессиональной роли
+            job_title: название профессиональной роли
             max_pages: Максимальное количество страниц
         Returns:
             DataFrame с данными вакансий"""
@@ -53,10 +54,10 @@ class VacancyParserManager:
         print(f"Начала парсинга вакансий по должности: {job_title}")
         print(f"{'='*50}")
         
-        self.current_job_title = job_title
+        self.current_job_title = job_id
         
         # Получаем ID вакансий
-        vacancy_ids = self.api.get_vacancy_ids(job_title, max_pages)
+        vacancy_ids = self.api.get_vacancy_ids(job_id, job_title, max_pages)
         
         if not vacancy_ids:
             print(f"Вакансии по должности '{job_title}' не найдены.")
@@ -69,7 +70,7 @@ class VacancyParserManager:
             print(f"Не удалось получить полную информацию о '{job_title}'")
             return pd.DataFrame()
         
-        #парсим даные вакансий
+        #парсим данные вакансий
         parsed_data = []
         for vacancy_data in tqdm(vacancies_data, desc=f'Парсинг вакансий по должности: "{job_title}"'):
             try:
@@ -86,8 +87,10 @@ class VacancyParserManager:
             print(f"✅ Успех: Парсинг вакансий закончен. Получено {len(df)} вакансий по должности '{job_title}'")
             # Добавляем информацию о том, для какой вакансии парсили
             df['parsed_for_job'] = job_title
+
             # Фильтрация IT-вакансий
-            df = self.filter_it_vacancies(df)
+            # df = self.filter_it_vacancies(df)
+            
             self.all_vacancies_data.append(df)
         return df
     
@@ -99,13 +102,13 @@ class VacancyParserManager:
         Returns:
             Объединенный DataFrame со всеми данными"""
         print(f"\n{'='*60}")
-        print(f"Начала парсинга для {len(job_titles)} должностей: ({', '.join(job_titles)})")
+        print(f"Начала парсинга для {len(job_titles)} должностей: ({', '.join(job_titles.keys())})")
         print(f"{'='*60}")
         
         self.all_vacancies_data = []
         
-        for job_title in job_titles:
-            df = self.parse_single_vacancy(job_title, max_pages_per_job)
+        for job_title, job_id in job_titles.items():
+            df = self.parse_single_vacancy(job_id, job_title, max_pages_per_job)
             if not df.empty:
                 self.all_vacancies_data.append(df)
         
@@ -128,7 +131,7 @@ class VacancyParserManager:
             combined_df.drop_duplicates(subset=col_subset, inplace=True)
 
             # Фильтрация IT-вакансий для объединённого датафрейма
-            combined_df = self.filter_it_vacancies(combined_df)
+            # combined_df = self.filter_it_vacancies(combined_df)
 
             print(f"\nВсего полученных вакансий: {len(combined_df)}")
             return combined_df

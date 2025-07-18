@@ -2,7 +2,7 @@ import requests
 import time
 from typing import Dict, List, Optional, Any
 from tqdm import tqdm
-from config import BASE_URL, USER_AGENT, PER_PAGE, DEFAULT_TIME_DELAY
+from config import BASE_URL, USER_AGENT, PER_PAGE, DEFAULT_TIME_DELAY, DEFAULT_VACANCIES
 
 
 class HeadHunterAPI:
@@ -36,26 +36,26 @@ class HeadHunterAPI:
             print(f'❌ Ошибка: Запрос к {url} вернул ошибку: {e}')
             return {}
 
-    def search_vacancies(self, job_title: str, page: int = 0, per_page: int = PER_PAGE, 
+    def search_vacancies(self, job_id: str, page: int = 0, per_page: int = PER_PAGE, 
                         only_with_salary: bool = True, locale: str = 'RU') -> Dict[str, Any]:
         """Поиск вакансий по названию
         Param:
-            job_title: Название должности для поиска
+            job_id: ID профессиональной роли
             page: Номер страницы
             per_page: Количество вакансий на странице
             only_with_salary: Только вакансии с зарплатой
             locale: Локаль
         Returns:
             Результат поиска вакансий"""
-        
+
         params = {
-            'text': job_title,
-            'search_field': 'name',
-            'page': page,
-            'per_page': per_page,
-            'only_with_salary': only_with_salary,
-            'locale': locale
+            'professional_role': job_id,  # Используем ID роли вместо текста
+            'page': 0,
+            'per_page': PER_PAGE,
+            'only_with_salary': True,
+            'locale': 'RU'
         }
+
         return self._make_request(self.base_url, params)
     
     def get_vacancy_details(self, vacancy_id: str) -> Dict[str, Any]:
@@ -68,10 +68,11 @@ class HeadHunterAPI:
         url = f"{self.base_url}/{vacancy_id}"
         return self._make_request(url)
     
-    def get_vacancy_ids(self, job_title: str, max_pages: Optional[int] = None) -> List[str]:
+    def get_vacancy_ids(self, job_id: str, job_title:str,  max_pages: Optional[int] = None) -> List[str]:
         """Получение списка ID вакансий для заданной должности
         Param:
-            job_title: Название должности
+            job_id: ID профессиональной роли
+            job_title: Название профессиональной роли
             max_pages: Максимальное количество страниц для парсинга
         Returns:
             Список ID вакансий"""
@@ -79,7 +80,7 @@ class HeadHunterAPI:
         vacancy_ids = []
         current_page = 0
 
-        response = self.search_vacancies(job_title, page=current_page)
+        response = self.search_vacancies(job_id, page=current_page)
         
         if not response:
             print(f'❌ Ошибка: Не удалось получить вакансии по должности: {job_title}')
@@ -96,7 +97,7 @@ class HeadHunterAPI:
         
         # Парсим ID найденых вакансий
         for page in tqdm(range(total_pages), desc=f'Получение ID вакансий по должности: {job_title}'):
-            response = self.search_vacancies(job_title, page=page)
+            response = self.search_vacancies(job_id, page=page)
             
             if response and 'items' in response:
                 for item in response['items']:
