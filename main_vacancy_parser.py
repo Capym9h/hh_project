@@ -10,8 +10,8 @@ from models.vacancy_parser import VacancyParser
 from utils.currency_handler import CurrencyHandler
 from utils.geo_handler import GeoHandler
 from database.db_handler import DatabaseHandler
-from config import SAVE_DB, SAVE_CSV, SAVE_EXCEL
-from config import CSV_FILE_PATH, EXCEL_FILE_PATH, BASE_DIR
+from config import SAVE_DB, SAVE_CSV, SAVE_EXCEL, SAVE_TO_DATALENS
+from config import CSV_FILE_PATH, EXCEL_FILE_PATH, BASE_DIR, DATALENS_FILE_PATH
 from config import DEFAULT_VACANCIES, IT_PROF_ROLES, DEFAULT_TIME_DELAY
 from config import SHOW_STATS
 
@@ -154,9 +154,10 @@ class VacancyParserManager:
         return updated_df
     
     def save_data(self, df: pd.DataFrame, 
-                  save_csv: bool = True, 
-                  save_excel: bool = True, 
-                  save_db: bool = True) -> None:
+                  save_csv: bool = SAVE_CSV, 
+                  save_excel: bool = SAVE_EXCEL, 
+                  save_db: bool = SAVE_DB,
+                  save_to_datalens:bool = SAVE_TO_DATALENS) -> None:
         """Сохранение данных в различные форматы
         Args:
             df: DataFrame для сохранения
@@ -205,6 +206,14 @@ class VacancyParserManager:
             except Exception as e:
                 print(f"❌ Ошибка: Возникла ошибка при работе с базой данных: {e}")
         
+        if save_to_datalens:
+            try:
+                datalens_db = self.db_handler.load_dataframe_from_db()
+                datalens_db.to_csv(DATALENS_FILE_PATH, index=False)
+                print(f"✅ Успех: Данные для DATALENS сохранены")
+            except Exception as e:
+                print(f"❌ Ошибка: Возникла ошибка при сохранения для DATALENS: {e}")
+
         print("✅ Успех: Данные сохранены")
     
     def convert_salaries_to_rub(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -247,7 +256,8 @@ class VacancyParserManager:
             return {}
         
         stats = {
-            'total_vacancies': len(df),
+            'total_vacancies_from_db':self.db_handler.get_table_count('full_sql'),
+            'total_vacancies (by now)': len(df),
             'unique_jobs': df['parsed_for_job'].nunique() if 'parsed_for_job' in df.columns else 1,
             'cities_count': df['city'].nunique(),
             'employers_count': df['employer_id'].nunique(),
@@ -263,6 +273,8 @@ class VacancyParserManager:
             },
             'top_cities': df['city'].value_counts().head(10).to_dict() if 'city' in df.columns else {},
         }
+        self.db_handler.close_conn()
+        
         return stats
     
     def print_statistics(self, df: pd.DataFrame) -> None:
@@ -278,7 +290,8 @@ class VacancyParserManager:
         print("\n" + "="*50)
         print("Расчет статистики".upper())
         print("="*50)
-        print(f"Всего вакансий: {stats['total_vacancies']}")
+        print(f"Всего вакансий в базе: {stats['total_vacancies_from_db']}")
+        print(f"Всего вакансий за сеанс: {stats['total_vacancies (by now)']}")
         print(f"Всего должностей: {stats['unique_jobs']}")
         print(f"Города: {stats['cities_count']}")
         print(f"Уникальные работодатели: {stats['employers_count']}")
@@ -329,7 +342,7 @@ def main():
         if SHOW_STATS:
             parser_manager.print_statistics(df)
 
-        parser_manager.save_data(df, save_csv=SAVE_CSV, save_excel=SAVE_EXCEL, save_db=SAVE_DB)# Сохраняем данные
+        parser_manager.save_data(df)# Сохраняем данные
         print("\n✅ Успех: Парсинг закончен!")
     else:
         print("❌ Ошибка: Данные не найдены.")

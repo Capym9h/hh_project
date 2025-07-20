@@ -9,6 +9,7 @@ class DatabaseHandler:
 
     def __init__(self, db_path: str = DBNAME):
         self.db_path = db_path
+        self.conn = None
 
     def _get_connection(self) -> sqlite3.Connection:
         """соединения с базой данных        
@@ -24,15 +25,15 @@ class DatabaseHandler:
         Returns:
             Результат запроса или None"""
         try:
-            with self._get_connection() as conn:
-                cursor = conn.cursor()
+            with self._get_connection() as self.conn:
+                cursor = self.conn.cursor()
                 if params:
                     cursor.execute(query, params)
                 else:
                     cursor.execute(query)
                 
                 result = cursor.fetchall()
-                conn.commit()
+                self.conn.commit()
                 return result
         except Exception as e:
             print(f'❌ Ошибка выполения запроса: {e}')
@@ -80,6 +81,9 @@ class DatabaseHandler:
         result = self.execute_query(create_table_query)
         return result is not None
     
+    def _conn_close(self):
+        self.conn.close()
+    
     def save_dataframe_to_db(self, df: pd.DataFrame, table_name: str = 'full_df', 
                            if_exists: Literal['fail', 'replace', 'append'] = 'replace') -> bool:
         """Сохранение DataFrame в базу данных
@@ -90,9 +94,8 @@ class DatabaseHandler:
         Returns:
             True если сохранение прошло успешно"""
         try:
-            with self._get_connection() as conn:
-                df.to_sql(table_name, con=conn, if_exists=if_exists, index=False)
-                return True
+            df.to_sql(table_name, con=self.conn, if_exists=if_exists, index=False)
+            return True
         except Exception as e:
             print(f'❌ Ошибка: не удалось сохранить датафрейм в базуданных: {e}')
             return False
@@ -132,15 +135,6 @@ class DatabaseHandler:
         result = self.execute_query(merge_query)
         return result is not None
     
-    def get_table_info(self, table_name: str) -> Optional[List]:
-        """Получение информации о таблице
-        Param:
-            table_name: Название таблицы
-        Returns:
-            Информация о таблице"""
-        query = f"PRAGMA table_info({table_name})"
-        return self.execute_query(query)
-    
     def get_table_count(self, table_name: str) -> Optional[int]:
         """Получене числа записей
         Args:
@@ -150,6 +144,9 @@ class DatabaseHandler:
         query = f"SELECT COUNT(*) FROM {table_name}"
         result = self.execute_query(query)
         return result[0][0] if result else None
+    
+    def close_conn(self):
+        self._conn_close()
     
     def load_dataframe_from_db(self, table_name: str = 'full_sql') -> Optional[pd.DataFrame]:
         """Загрузка DataFrame из базы данных

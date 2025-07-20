@@ -13,6 +13,7 @@ PER_PAGE = 100
 SAVE_CSV = True
 SAVE_DB = True
 SAVE_EXCEL = False
+SAVE_TO_DATALENS = True
 
 #Пути до файлов кэша
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -21,6 +22,7 @@ GEO_CACHE_FILE = os.path.join(BASE_DIR, 'resources', 'geo_cache.json')
 DBNAME = os.path.join(BASE_DIR, 'resources', 'hh_sqllite.db')
 CSV_FILE_PATH = os.path.join(BASE_DIR, 'resources', 'full_df.csv')
 EXCEL_FILE_PATH = os.path.join(BASE_DIR, 'resources', 'full_df.xslx')
+DATALENS_FILE_PATH = os.path.join(BASE_DIR, 'resources', 'to_DataLens.csv')
 
 
 #Настройки парсинга
@@ -52,12 +54,10 @@ DEFAULT_VACANCIES = {
 #   "Системный инженер": "114"
 }
 
-
 # Исключения для валют
 CURRENCY_EXCEPTIONS = {
     'BYR': 'BYN'
 }
-
 
 #Перевод зарплат в месячный эквивалент при размещении зарплата в час/год
 SALARY_COEFFICIENTS = {
@@ -65,7 +65,6 @@ SALARY_COEFFICIENTS = {
     'год': 1/12,
     'месяц': 1
 }
-
 
 #Ключевые слова для определения уровня, при необходимости изменить или расширить
 GRADE_KEYWORDS = {
@@ -75,14 +74,6 @@ GRADE_KEYWORDS = {
     'Senior': ['сеньор', 'senior', 'старший', 'ведущий', 'опытный'],
     'Team Lead': ['тимлид', 'teamlead', 'руководитель', 'lead', 'главный', 'начальник']
 }
-
-
-# Настройки извлечения навыков из описания
-EXTRACT_SKILLS_FROM_DESCRIPTION = True
-
-
-# Показать статистику после завершения работы парсера
-SHOW_STATS = True
 
 
 IT_PROF_ROLES = [
@@ -97,4 +88,10 @@ IT_PROF_ROLES = [
     'Cloud', 'Kubernetes', 'Docker', 'Network engineer', 'Security', 'Информационная безопасность'
 ]
 
+
+# Настройки извлечения навыков из описания
 #экстракция скилов происходит из описания вакансии. Ключевые слова можно найти по пути unils/skill_extractor.py
+EXTRACT_SKILLS_FROM_DESCRIPTION = True
+
+#Вывести статистику после завершения парсинга?
+SHOW_STATS = True
