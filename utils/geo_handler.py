@@ -26,6 +26,8 @@ class GeoHandler:
                 self.geo_cache = {}
         else:
             print('Внимание: Файл с ГЕО КЭШ не найден')
+            with open(self.cache_file, 'w') as f:
+                pass
             self.geo_cache = {}
     
     def _save_cache(self) -> None:
@@ -37,35 +39,6 @@ class GeoHandler:
         except Exception as e:
             print(f'Error saving geo cache: {e}')
     
-    def get_geopoints(self, city: str) -> Optional[str]:
-        """Получение координат города из кэша кэша
-        Param:
-            city: Название города
-        Returns:
-            Строка с координатами в формате [lat, lng] или None"""
-        if not city or pd.isna(city):
-            return None
-        
-        #посмотрим есть ли этот город в файле кэша
-        if city in self.geo_cache:
-            return self.geo_cache[city]
-        
-        #если нет в кэш, попробуем найти координаты
-        try:
-            location = self.geolocator.geocode(f"{city}")
-            if location:
-                result = f'[{str(location.latitude)}, {str(location.longitude)}]'
-            else:
-                print(f'❌ Ошибка: Неудалось получить геоточки для: {city}')
-                result = None
-        except Exception as e:
-            print(f'❌ Ошибка: Запрос к geopy по городу {city} вернул ошибку: {e}')
-            result = None
-        
-        # Обновляем кэш
-        self.geo_cache[city] = result
-        return result
-    
     def get_city_geopoints(self, city: str) -> Optional[str]:
         """Получение координат именно города (без улиц и зданий)
         Args:
@@ -75,7 +48,7 @@ class GeoHandler:
         if not city or pd.isna(city):
             return None
         # Проверяем кэш
-        if city in self.geo_cache:
+        if city in self.geo_cache and not (pd.isna(self.geo_cache.get(city))):
             return self.geo_cache[city]
         
         # Геокодирование города (центр города)
@@ -96,7 +69,9 @@ class GeoHandler:
             result = None
         
         # Обновляем кэш
-        self.geo_cache[city] = result
+        if result:
+            self.geo_cache[city] = result
+
         return result
     
     def save_cache(self) -> None:
@@ -123,4 +98,6 @@ class GeoHandler:
                     geo_coords = self.get_city_geopoints(city)
                     if geo_coords:
                         df_copy.at[index, 'geo'] = geo_coords
+        
+        self.save_cache()
         return df_copy 

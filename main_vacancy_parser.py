@@ -21,9 +21,9 @@ class VacancyParserManager:
     def __init__(self, time_delay: float = 0.4):
         self.api = HeadHunterAPI() #класс для работы с АПИ ХХ
         self.api.set_time_delay(time_delay)
-        self.parser = VacancyParser()  #класс для парсинга вакансий
-        self.currency_handler = CurrencyHandler() #класс для обработка курса валют
         self.geo_handler = GeoHandler() #класс для работы с гео данными
+        self.parser = VacancyParser(self.geo_handler)  #класс для парсинга вакансий
+        self.currency_handler = CurrencyHandler() #класс для обработка курса валют
         self.db_handler = DatabaseHandler() #класс для работы с базой данных
         
         # Результаты парсинга
@@ -149,9 +149,6 @@ class VacancyParserManager:
         
         # Обновляем координаты для строк без них
         updated_df = self.geo_handler.update_dataframe_geo(df)
-        
-        # Сохраняем кэш геоданных
-        self.geo_handler.save_cache()
         
         print("✅ Успех: Геоданные обновлены")
         return updated_df
@@ -326,7 +323,8 @@ def main():
     
     if not df.empty:
         df = parser_manager.convert_salaries_to_rub(df) # перевод зарплаты в рубли
-        
+        df = parser_manager.update_geo_data(df)
+
         #Печать статитстики статистику
         if SHOW_STATS:
             parser_manager.print_statistics(df)

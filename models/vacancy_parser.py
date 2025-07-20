@@ -8,8 +8,8 @@ from utils.skills_extractor import SkillsExtractor
 class VacancyParser:
     """Класс для парсинга и обработки вакансий"""
     
-    def __init__(self):
-        self.geohandler = GeoHandler()
+    def __init__(self, geohandler):
+        self.geohandler = geohandler
         self.skills_extractor = SkillsExtractor() if EXTRACT_SKILLS_FROM_DESCRIPTION else None
     
     def get_skills_string(self, key_skills: List[Dict[str, Any]], description: str, type_skills : Literal['hard','soft']='hard') -> str:
@@ -124,7 +124,6 @@ class VacancyParser:
         else:
             # Иначе получаем координаты города
             geo = self.geohandler.get_city_geopoints(city_name)
-        
         return address_raw, geo
     
     def parse_vacancy(self, vacancy_data: Dict[str, Any]) -> Dict[str, Any]:
