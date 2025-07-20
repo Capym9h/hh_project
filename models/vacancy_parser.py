@@ -1,5 +1,5 @@
 import json
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Literal
 from config import SALARY_COEFFICIENTS, GRADE_KEYWORDS, EXTRACT_SKILLS_FROM_DESCRIPTION
 from utils.geo_handler import GeoHandler
 from utils.skills_extractor import SkillsExtractor
@@ -12,12 +12,16 @@ class VacancyParser:
         self.geohandler = GeoHandler()
         self.skills_extractor = SkillsExtractor() if EXTRACT_SKILLS_FROM_DESCRIPTION else None
     
-    def get_skills_string(self, key_skills: List[Dict[str, Any]], description: str) -> str:
+    def get_skills_string(self, key_skills: List[Dict[str, Any]], description: str, type_skills : Literal['hard','soft']='hard') -> str:
         """Преобразование списка словарей требуемых скилов в строку
         Param:
             key_skills: Список словарей с навыками
+            type_skills: Показывает какие именно скилы мы парсим
         Returns:
             Строка с навыками"""
+        if type_skills not in ('hard','soft'):
+            return []
+
         if not key_skills and not description:
             return None
         
@@ -26,9 +30,9 @@ class VacancyParser:
             skill_name = skill.get('name')
             if skill_name:
                 result.append(skill_name)
-        extracted_skills = self.skills_extractor.extract_skills_from_description(description) if self.skills_extractor else ""
-        result.append(extracted_skills)
-        return '; '.join(result)
+
+        extracted_skills = self.skills_extractor.extract_skills_from_description(', '.join([description, *result]), type_skills) if self.skills_extractor else ""
+        return '; '.join(extracted_skills)
         
     def _get_salary_coefficient(self, mode_name: str) -> float:
         """Получение коэффициента для перевода зарплаты (за час, за месяц, за год)
@@ -174,7 +178,8 @@ class VacancyParser:
             'insider_interview': vacancy_data.get('insider_interview'),
             'response_letter_required': vacancy_data.get('response_letter_required'),
             'experience': vacancy_data.get('experience', {}).get('name'),
-            'key_skills': self.get_skills_string(vacancy_data.get('key_skills', []), description),
+            'hard_skills':self.get_skills_string(vacancy_data.get('key_skills', []), description),
+            'soft_skills':self.get_skills_string(vacancy_data.get('key_skills', []), description, type_skills='soft'),
             'has_test': vacancy_data.get('has_test'),
             'url': vacancy_data.get('alternate_url')
         }

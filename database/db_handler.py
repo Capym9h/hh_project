@@ -71,7 +71,8 @@ class DatabaseHandler:
                 insider_interview INTEGER,
                 response_letter_required INTEGER,
                 experience TEXT,
-                key_skills TEXT,
+                hard_skills TEXT,
+                soft_skills TEXT,
                 has_test INTEGER,
                 url TEXT,
                 parsed_for_job TEXT
