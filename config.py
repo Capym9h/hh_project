@@ -1,7 +1,6 @@
 import os
 from dotenv import dotenv_values
 
-# Загрузка переменных окружения
 env_vars = dotenv_values('.env')
 
 #Настройки API
@@ -17,9 +16,10 @@ SAVE_TO_DATALENS = True
 
 #Пути до файлов кэша
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+DBNAME = os.path.join(BASE_DIR, 'resources', 'hh_sqllite.db')
 CURRENCY_CACHE_FILE = os.path.join(BASE_DIR, 'resources', 'currency_cache.json')
 GEO_CACHE_FILE = os.path.join(BASE_DIR, 'resources', 'geo_cache.json')
-DBNAME = os.path.join(BASE_DIR, 'resources', 'hh_sqllite.db')
 CSV_FILE_PATH = os.path.join(BASE_DIR, 'resources', 'full_df.csv')
 EXCEL_FILE_PATH = os.path.join(BASE_DIR, 'resources', 'full_df.xslx')
 DATALENS_FILE_PATH = os.path.join(BASE_DIR, 'resources', 'to_DataLens.csv')
@@ -31,27 +31,16 @@ DEFAULT_GEO_TIMEOUT = 10
 
 
 #Список ролей
-# DEFAULT_VACANCIES = [
-#     'Аналитик данных',
-#     'Data Scientist',
-#     'BI аналитик',
-#     'Системный аналитик',
-#     'Дата-сайентист',
-#     'Бизнес-аналитик',
-#     'Продуктовый аналитик',
-#     'Data инженер'
-# ]
-
 DEFAULT_VACANCIES = {
-#   "BI-аналитик, аналитик данных": "156",
-#   "Аналитик": "10",
-#   "Бизнес-аналитик": "150",
-#   "Дата-сайентист": "165",
-#   "Продуктовый аналитик": "164",
+  "BI-аналитик, аналитик данных": "156",
+  "Аналитик": "10",
+  "Бизнес-аналитик": "150",
+  "Дата-сайентист": "165",
+  "Продуктовый аналитик": "164",
   "Руководитель отдела аналитики": "157",
-#   "Сетевой инженер": "112",
-#   "Системный аналитик": "148",
-#   "Системный инженер": "114"
+  "Сетевой инженер": "112",
+  "Системный аналитик": "148",
+  "Системный инженер": "114"
 }
 
 # Исключения для валют

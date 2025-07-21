@@ -30,18 +30,6 @@ class VacancyParserManager:
         self.all_vacancies_data = []
         self.current_job_title = None
     
-    def filter_it_vacancies(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Фильтрация датафрейма: оставляет только IT-вакансии по полю prof_role"""
-        if 'prof_role' not in df.columns:
-            return df if isinstance(df, pd.DataFrame) else pd.DataFrame(df)
-        mask = df['prof_role'].apply(
-            lambda x: any(role.lower() in str(x).lower() for role in IT_PROF_ROLES)
-        )
-        filtered = df[mask]
-        if not isinstance(filtered, pd.DataFrame):
-            filtered = pd.DataFrame(filtered)
-        return filtered.reset_index(drop=True)
-    
     def parse_single_vacancy(self, job_id: str, job_title:str, max_pages: Optional[int] = None) -> pd.DataFrame:
         """Парсинг вакансий
         Args:

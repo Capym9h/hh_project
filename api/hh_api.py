@@ -50,7 +50,7 @@ class HeadHunterAPI:
 
         params = {
             'professional_role': job_id,  # Используем ID роли вместо текста
-            'page': 0,
+            'page': page,
             'per_page': PER_PAGE,
             'only_with_salary': True,
             'locale': 'RU'
