@@ -6,8 +6,7 @@ from config import BASE_URL, USER_AGENT, PER_PAGE, DEFAULT_TIME_DELAY, DEFAULT_V
 
 
 class HeadHunterAPI:
-    """Класс для работы с API HH"""
-    
+    """Класс для работы с hh.api"""
     def __init__(self, user_agent: str = USER_AGENT, base_url: str = BASE_URL):
         self.base_url = base_url
         self.headers = {'User-Agent': user_agent}
@@ -20,12 +19,12 @@ class HeadHunterAPI:
         self.time_delay = delay 
 
     def _make_request(self, url: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Выполнение запроса к api HH
+        """Выполнение запроса к hh.api
         Param:
             url: URL для запроса
             params: Параметры запроса
         Returns:
-            Ответ API в виде словаря"""
+            Ответ ввиде словаря"""
         
         time.sleep(self.time_delay)
         try:
@@ -36,9 +35,12 @@ class HeadHunterAPI:
             print(f'❌ Ошибка: Запрос к {url} вернул ошибку: {e}')
             return {}
 
-    def search_vacancies(self, job_id: str, page: int = 0, per_page: int = PER_PAGE, 
-                        only_with_salary: bool = True, locale: str = 'RU') -> Dict[str, Any]:
-        """Поиск вакансий по названию
+    def search_vacancies(self, job_id: str, 
+                         page: int = 0, 
+                         per_page: int = PER_PAGE, 
+                        only_with_salary: bool = True, 
+                        locale: str = 'RU') -> Dict[str, Any]:
+        """Поиск вакансий по ID должности
         Param:
             job_id: ID профессиональной роли
             page: Номер страницы
@@ -55,7 +57,6 @@ class HeadHunterAPI:
             'only_with_salary': True,
             'locale': 'RU'
         }
-
         return self._make_request(self.base_url, params)
     
     def get_vacancy_details(self, vacancy_id: str) -> Dict[str, Any]:
@@ -63,19 +64,20 @@ class HeadHunterAPI:
         Param:
             vacancy_id: ID вакансии
         Returns:
-            Полная информация о вакансии"""
-        
+            Словарь с полным описанием вакансии"""
         url = f"{self.base_url}/{vacancy_id}"
         return self._make_request(url)
     
-    def get_vacancy_ids(self, job_id: str, job_title:str,  max_pages: Optional[int] = None) -> List[str]:
+    def get_vacancy_ids(self, job_id: str, 
+                        job_title:str,  
+                        max_pages: Optional[int] = None) -> List[str]:
         """Получение списка ID вакансий для заданной должности
         Param:
-            job_id: ID профессиональной роли
-            job_title: Название профессиональной роли
+            job_id: ID должности
+            job_title: название должности
             max_pages: Максимальное количество страниц для парсинга
         Returns:
-            Список ID вакансий"""
+           ID вакансий"""
         
         vacancy_ids = []
         current_page = 0

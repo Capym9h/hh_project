@@ -12,7 +12,7 @@ from utils.geo_handler import GeoHandler
 from database.db_handler import DatabaseHandler
 from config import SAVE_DB, SAVE_CSV, SAVE_EXCEL, SAVE_TO_DATALENS
 from config import CSV_FILE_PATH, EXCEL_FILE_PATH, BASE_DIR, DATALENS_FILE_PATH
-from config import DEFAULT_VACANCIES, IT_PROF_ROLES, DEFAULT_TIME_DELAY
+from config import DEFAULT_VACANCIES, DEFAULT_TIME_DELAY
 from config import SHOW_STATS
 
 
@@ -20,38 +20,38 @@ class VacancyParserManager:
     
     def __init__(self, time_delay: float = 0.4):
         self.api = HeadHunterAPI() #класс для работы с АПИ ХХ
-        self.api.set_time_delay(time_delay)
+        self.api.set_time_delay(time_delay) #установка задержки отправки запросов
         self.geo_handler = GeoHandler() #класс для работы с гео данными
         self.parser = VacancyParser(self.geo_handler)  #класс для парсинга вакансий
         self.currency_handler = CurrencyHandler() #класс для обработка курса валют
         self.db_handler = DatabaseHandler() #класс для работы с базой данных
         
-        # Результаты парсинга
         self.all_vacancies_data = []
         self.current_job_title = None
     
     def parse_single_vacancy(self, job_id: str, job_title:str, max_pages: Optional[int] = None) -> pd.DataFrame:
         """Парсинг вакансий
         Args:
-            job_id: ID профессиональной роли
-            job_title: название профессиональной роли
-            max_pages: Максимальное количество страниц
+            job_id: ID профессии
+            job_title: название профессии
+            max_pages: Максимальное количество страниц (hh.api позволяет загружать до 20 страниц)
         Returns:
             DataFrame с данными вакансий"""
+        
         print(f"\n{'='*50}")
         print(f"Начала парсинга вакансий по должности: {job_title}")
         print(f"{'='*50}")
         
         self.current_job_title = job_id
         
-        # Получаем ID вакансий
+        #ID вакансий
         vacancy_ids = self.api.get_vacancy_ids(job_id, job_title, max_pages)
         
         if not vacancy_ids:
             print(f"Вакансии по должности '{job_title}' не найдены.")
             return pd.DataFrame()
         
-        # Получаем полную информацию о вакансиях
+        # Получаем полную информацию о вакансиях по их ID
         vacancies_data = self.api.get_vacancies_details(vacancy_ids)
         
         if not vacancies_data:
@@ -68,16 +68,12 @@ class VacancyParserManager:
             except Exception as e:
                 print(f'❌ Ошибка: Не удалось спарсить {vacancy_data.get("id", "unknown")}: {e}')
         
-        # Создаем DataFrame
         df = pd.DataFrame(parsed_data)
         
         if not df.empty:
             print(f"✅ Успех: Парсинг вакансий закончен. Получено {len(df)} вакансий по должности '{job_title}'")
-            # Добавляем информацию о том, для какой вакансии парсили
-            df['parsed_for_job'] = job_title
 
-            # Фильтрация IT-вакансий
-            # df = self.filter_it_vacancies(df)
+            df['parsed_for_job'] = job_title
             
             self.all_vacancies_data.append(df)
         return df
@@ -104,22 +100,16 @@ class VacancyParserManager:
         if self.all_vacancies_data:
             combined_df = pd.concat(self.all_vacancies_data, ignore_index=True)
             
-            # Проверяем и очищаем данные перед удалением дубликатов
             for col in combined_df.columns:
                 if combined_df[col].dtype == 'object':
-                    # Заменяем None на строку для совместимости
                     combined_df[col] = combined_df[col].fillna('')
                     
-                    # Преобразуем словари и списки в строки
                     combined_df[col] = combined_df[col].apply(
                         lambda x: str(x) if isinstance(x, (dict, list)) else x
                     )
             
             col_subset = [col for col in df.columns if col !='parsed_for_job']
             combined_df.drop_duplicates(subset=col_subset, inplace=True)
-
-            # Фильтрация IT-вакансий для объединённого датафрейма
-            # combined_df = self.filter_it_vacancies(combined_df)
 
             print(f"\nВсего полученных вакансий: {len(combined_df)}")
             return combined_df
@@ -135,7 +125,7 @@ class VacancyParserManager:
             DataFrame с обновленными геоданными"""
         print("\nОбновление ГЕО данных...")
         
-        # Обновляем координаты для строк без них
+        #Если у вакансии не указаны ГЕО данные, добавляем их
         updated_df = self.geo_handler.update_dataframe_geo(df)
         
         print("✅ Успех: Геоданные обновлены")
@@ -151,14 +141,15 @@ class VacancyParserManager:
             df: DataFrame для сохранения
             save_csv: Сохранять в CSV 
             save_excel: Сохранять в Excel
-            save_db: Сохранять в базу данных"""
+            save_db: Сохранять в базу данных
+            save_to_datalens: Сохраняем всю базу данных для импорта в DataLens, формат CSV"""
         if df.empty:
             print("Нет данных для сохранения")
             return
         
         print("\nСохранение данных...")
         
-        # Сохранение в CSV
+        #CSV
         if save_csv:
             try:
                 # csv_path = 'resources/full_df.csv'
@@ -167,7 +158,7 @@ class VacancyParserManager:
             except Exception as e:
                 print(f"❌ Ошибка: Не удалось сохранить CSV: {e}")
         
-        # Сохранение в Excel
+        #Excel
         if save_excel:
             try:
                 # excel_path = f"'resources/my.xlsx"
@@ -176,7 +167,7 @@ class VacancyParserManager:
             except Exception as e:
                 print(f"❌ Ошибка: Не удалось сохранить Excel: {e}")
         
-        # Сохранение в базу данных
+        #DB
         if save_db:
             try:
                 # Создаем таблицу если не существует
@@ -194,6 +185,7 @@ class VacancyParserManager:
             except Exception as e:
                 print(f"❌ Ошибка: Возникла ошибка при работе с базой данных: {e}")
         
+        #DataLens
         if save_to_datalens:
             try:
                 datalens_db = self.db_handler.load_dataframe_from_db()
@@ -212,22 +204,21 @@ class VacancyParserManager:
             DataFrame с зарплатами в рублях"""
         print("\nКонвертация зар.плат в рубли...")
         
-        # Создаем копию DataFrame для безопасного изменения
         df_copy = df.copy(deep=True)
         
-        # Конвертируем salary_from
+        #salary_from
         mask_from = (df_copy['salary_from'].notna()) & (df_copy['currency'].notna()) & (df_copy['currency'] != 'RUR')
         df_copy.loc[mask_from, 'salary_from'] = df_copy.loc[mask_from].apply(
             lambda row: self.currency_handler.convert_to_rub(row['salary_from'], row['currency']), axis=1
         )
         
-        # Конвертируем salary_to
+        #salary_to
         mask_to = (df_copy['salary_to'].notna()) & (df_copy['currency'].notna()) & (df_copy['currency'] != 'RUR')
         df_copy.loc[mask_to, 'salary_to'] = df_copy.loc[mask_to].apply(
             lambda row: self.currency_handler.convert_to_rub(row['salary_to'], row['currency']), axis=1
         )
         
-        # Обновляем валюту на RUR для конвертированных значений
+        # Обновляем валюту на рубли
         converted_mask = mask_from | mask_to
         df_copy.loc[converted_mask, 'currency'] = 'RUR'
         
@@ -268,7 +259,8 @@ class VacancyParserManager:
     def print_statistics(self, df: pd.DataFrame) -> None:
         """Вывод статистики в консоль
         Args:
-            df: DataFrame с данными"""
+            df: DataFrame с данными
+        Returns: выводит статистику на экран"""
         stats = self.get_statistics(df)
         
         if not stats:
@@ -319,18 +311,18 @@ def main():
     parser_manager = VacancyParserManager(time_delay=DEFAULT_TIME_DELAY)
     job_titles = DEFAULT_VACANCIES
     
-    #запуск парсера вакансий
+    #Старт парсера
     df = parser_manager.parse_multiple_vacancies(job_titles)
     
     if not df.empty:
-        df = parser_manager.convert_salaries_to_rub(df) # перевод зарплаты в рубли
+        df = parser_manager.convert_salaries_to_rub(df)
         df = parser_manager.update_geo_data(df)
 
-        #Печать статитстики статистику
+        #Вывод статистики
         if SHOW_STATS:
             parser_manager.print_statistics(df)
 
-        parser_manager.save_data(df)# Сохраняем данные
+        parser_manager.save_data(df)
         print("\n✅ Успех: Парсинг закончен!")
     else:
         print("❌ Ошибка: Данные не найдены.")

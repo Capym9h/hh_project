@@ -12,18 +12,18 @@ class DatabaseHandler:
         self.conn = None
 
     def _get_connection(self) -> sqlite3.Connection:
-        """соединения с базой данных        
+        """соединения с базой данных
         Returns:
             Соединение с базой данных"""
         return sqlite3.connect(self.db_path)
     
     def execute_query(self, query: str, params: Optional[tuple] = None) -> Optional[List]:
-        """Выполнение SQL запроса        
+        """Выполнение SQL запроса
         Param:
             query: SQL запрос
             params: Параметры запроса
         Returns:
-            Результат запроса или None"""
+            Результат запроса | None"""
         try:
             with self._get_connection() as self.conn:
                 cursor = self.conn.cursor()
@@ -82,10 +82,12 @@ class DatabaseHandler:
         return result is not None
     
     def _conn_close(self):
+        '''Функция закрытия соединения с базой данных'''
         self.conn.close()
     
-    def save_dataframe_to_db(self, df: pd.DataFrame, table_name: str = 'full_df', 
-                           if_exists: Literal['fail', 'replace', 'append'] = 'replace') -> bool:
+    def save_dataframe_to_db(self, df: pd.DataFrame, 
+                             table_name: str = 'full_df', 
+                             if_exists: Literal['fail', 'replace', 'append'] = 'replace') -> bool:
         """Сохранение DataFrame в базу данных
         Args:
             df: DataFrame для сохранения
@@ -107,7 +109,7 @@ class DatabaseHandler:
             target_table: Целевая таблица
         Returns:
             True если объединение прошло успешно"""
-        #информация о столбцах таблицы
+        #получаем полную информацию о таблицах
         source_columns = self.execute_query(f"PRAGMA table_info({source_table})")
         target_columns = self.execute_query(f"PRAGMA table_info({target_table})")
         
@@ -115,18 +117,17 @@ class DatabaseHandler:
             print("❌ Ошибка: Не удалось получить информацию")
             return False
         
-        # Извлекаем названия столбцов
+        # получаем названия столбцов
         source_col_names = [col[1] for col in source_columns]
         target_col_names = [col[1] for col in target_columns]
-        
-        # Находим общие столбцы
+        #находим одинаковые названия столбцов
         common_columns = [col for col in source_col_names if col in target_col_names]
         
         if not common_columns:
             print("❌ Ошибка: Нет совпадающих колонок")
             return False
         
-        # Создаем запрос с явным указанием столбцов
+        #объединяем таблицы
         columns_str = ', '.join(common_columns)
         merge_query = f'''
         INSERT OR REPLACE INTO {target_table} ({columns_str})
@@ -146,6 +147,7 @@ class DatabaseHandler:
         return result[0][0] if result else None
     
     def close_conn(self):
+        '''Закрываем соединение с базой данных'''
         self._conn_close()
     
     def load_dataframe_from_db(self, table_name: str = 'full_sql') -> Optional[pd.DataFrame]:

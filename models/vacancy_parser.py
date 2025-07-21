@@ -16,6 +16,7 @@ class VacancyParser:
         """Преобразование списка словарей требуемых скилов в строку
         Param:
             key_skills: Список словарей с навыками
+            description: поле "описание" из вакансии
             type_skills: Показывает какие именно скилы мы парсим
         Returns:
             Строка с навыками"""
@@ -35,7 +36,7 @@ class VacancyParser:
         return '; '.join(extracted_skills)
         
     def _get_salary_coefficient(self, mode_name: str) -> float:
-        """Получение коэффициента для перевода зарплаты (за час, за месяц, за год)
+        """Получение коэффициента для перевода зарплаты (за час, за месяц, за год, за смену см. config.py)
         Param:
             mode_name: Название периода оплаты
         Returns:
@@ -47,7 +48,7 @@ class VacancyParser:
             if period in mode_name:
                 return coef
         
-        return 1.0  # По умолчанию за месяц
+        return 1.0
     
     def _determine_grade(self, vacancy_name: str) -> str:
         """Определение грейда вакансии
@@ -97,7 +98,6 @@ class VacancyParser:
         
         currency = salary_data.get('currency')
         gross = salary_data.get('gross')
-        
         return salary_from, salary_to, currency, gross, mode_data.get('name')
     
     def _process_address(self, address_data: Dict[str, Any], city_name:str) -> tuple:
@@ -109,7 +109,7 @@ class VacancyParser:
             Возвращает кортеж (address_raw, geo_coordinates)
         """
         if not address_data:
-            # Если нет адреса, но есть город, получаем координаты города
+            #В случае если адрес не указан, но указан город возвращаем гео точки гцентра города
             geo = self.geohandler.get_city_geopoints(city_name) if city_name else None
             return None, geo
         
@@ -118,18 +118,16 @@ class VacancyParser:
         lat = address_data.get('lat')
         lng = address_data.get('lng')
         
-        # Если есть координаты в вакансии, используем их
         if lat is not None and lng is not None:
             geo = f"[{lat}, {lng}]"
         else:
-            # Иначе получаем координаты города
             geo = self.geohandler.get_city_geopoints(city_name)
         return address_raw, geo
     
     def parse_vacancy(self, vacancy_data: Dict[str, Any]) -> Dict[str, Any]:
         """Парсинг данных вакансии
         Param:
-            vacancy_data: Сырые данные вакансии из api HH
+            vacancy_data: данные из api HH о вакансии
         Returns:
             Обработанные данные вакансии"""
         # Извлекаем основные данные
@@ -142,16 +140,16 @@ class VacancyParser:
         city_name = vacancy_data.get('area', {}).get('name')
         description = str(vacancy_data.get('description'))
         
-        # Обработка зарплаты
+        #зарплата
         salary_from, salary_to, currency, gross, mode_name = self._process_salary(salary, mode)
         
-        # Обработка адреса
+        #адреса
         address_raw, geo = self._process_address(address, city_name)
         
-        # Определение грейда
+        #грейд
         grade = self._determine_grade(vacancy_data.get('name', ''))
         
-        # Формирование результата
+        #формирование результата
         result = {
             'vac_id': vacancy_data.get('id'),
             'vac_name': vacancy_data.get('name'),

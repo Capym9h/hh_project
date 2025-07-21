@@ -25,12 +25,13 @@ EXCEL_FILE_PATH = os.path.join(BASE_DIR, 'resources', 'full_df.xslx')
 DATALENS_FILE_PATH = os.path.join(BASE_DIR, 'resources', 'to_DataLens.csv')
 
 
-#Настройки парсинга
-DEFAULT_TIME_DELAY = 0.4
-DEFAULT_GEO_TIMEOUT = 10
+#Настройки парсера
+DEFAULT_TIME_DELAY = 0.4 #задержка отправки запросов на hh.api
+DEFAULT_GEO_TIMEOUT = 10 #задержка отправки запросов на geopy
 
 
 #Список ролей
+#найти другие роли и их цифровые коды можно сделав GET запрос на адрес: https://api.hh.ru/professional_roles
 DEFAULT_VACANCIES = {
   "BI-аналитик, аналитик данных": "156",
   "Аналитик": "10",
@@ -66,21 +67,8 @@ GRADE_KEYWORDS = {
 }
 
 
-IT_PROF_ROLES = [
-    'Разработчик', 'Программист', 'Data Scientist', 'Аналитик данных', 'BI аналитик',
-    'Системный аналитик', 'Дата-сайентист', 'Бизнес-аналитик', 'Продуктовый аналитик',
-    'Data инженер', 'DevOps', 'QA', 'Тестировщик', 'Frontend', 'Backend', 'Fullstack',
-    'ML Engineer', 'Системный администратор', 'Инженер по данным', 'Python', 'Java',
-    'C++', 'C#', 'Go', 'Scala', 'JavaScript', 'TypeScript', 'PHP', 'Ruby', 'Android',
-    'iOS', 'Mobile', 'AI', 'Machine Learning', 'Data Engineer', 'Data Analyst',
-    'Software Engineer', 'Web-разработчик', 'Web developer', 'Game developer',
-    'Unity', 'Unreal', '1C', 'SAP', 'Oracle', 'SQL', 'DWH', 'ETL', 'Big Data',
-    'Cloud', 'Kubernetes', 'Docker', 'Network engineer', 'Security', 'Информационная безопасность'
-]
-
-
+#экстракция скилов происходит из описания вакансии. Ключевые слова можно найти по пути unils/skill_extractor.py (HARD_SKILLS, SOFT_SKILLS). При необходимости расширить или изменить
 # Настройки извлечения навыков из описания
-#экстракция скилов происходит из описания вакансии. Ключевые слова можно найти по пути unils/skill_extractor.py
 EXTRACT_SKILLS_FROM_DESCRIPTION = True
 
 #Вывести статистику после завершения парсинга?

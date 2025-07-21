@@ -16,7 +16,7 @@ class GeoHandler:
         self._load_cache()
     
     def _load_cache(self) -> None:
-        """Загрузка кэша геокодирования из файла"""
+        """Загрузка кэша из файла"""
         if os.path.exists(self.cache_file):
             try:
                 with open(self.cache_file, 'r', encoding='utf-8') as f:
@@ -31,7 +31,7 @@ class GeoHandler:
             self.geo_cache = {}
     
     def _save_cache(self) -> None:
-        """Сохранение кэша геокодирования в файл"""
+        """Сохранение кэша в файл"""
         try:
             os.makedirs(os.path.dirname(self.cache_file), exist_ok=True)
             with open(self.cache_file, 'w', encoding='utf-8') as f:
@@ -40,7 +40,7 @@ class GeoHandler:
             print(f'Error saving geo cache: {e}')
     
     def get_city_geopoints(self, city: str) -> Optional[str]:
-        """Получение координат именно города (без улиц и зданий)
+        """Получение координат центра города
         Args:
             city: Название города
         Returns:
@@ -51,13 +51,12 @@ class GeoHandler:
         if city in self.geo_cache and not (pd.isna(self.geo_cache.get(city))):
             return self.geo_cache[city]
         
-        # Геокодирование города (центр города)
+        #получение гео точек города
         try:
             location = self.geolocator.geocode(f"{city}, Россия", exactly_one=True)
             if location:
                 result = f'[{str(location.latitude)}, {str(location.longitude)}]'
             else:
-                #Если не удалось найти с пометкой страны"Россия", пробуем без нее
                 location = self.geolocator.geocode(f"{city}", exactly_one=True)
                 if location:
                     result = f'[{str(location.latitude)}, {str(location.longitude)}]'
@@ -68,7 +67,6 @@ class GeoHandler:
             print(f'❌ Ошибка: Запрос к geopy по городу {city} вернул ошибку: {e}')
             result = None
         
-        # Обновляем кэш
         if result:
             self.geo_cache[city] = result
 
@@ -90,7 +88,7 @@ class GeoHandler:
         # Создаем копию DataFrame
         df_copy = df.copy(deep=True)
         
-        # Обновляем координаты для строк без них
+        # Обновляем координаты
         for index, row in df_copy.iterrows():
             if pd.isna(row['geo']) or row['geo'] is None or row['geo'] == '':
                 city = row['city']

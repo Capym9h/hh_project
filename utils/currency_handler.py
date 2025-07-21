@@ -34,7 +34,7 @@ class CurrencyHandler:
             print(f'❌ Ошибка: Не удалось сохранить курс валют в файл кэша: {e}')
     
     def _update_currency_rates(self) -> None:
-        """Обновление курсов валют с ЦБ РФ"""
+        """Обновление курсов валют спомощью GET запроса к ЦБ РФ"""
         if self.updated_currency:
             return
 
@@ -44,14 +44,12 @@ class CurrencyHandler:
             data = response.json()
             currencies = data.get('Valute', {})
             
-            # Обновляем кэш
             for code, currency_data in currencies.items():
                 nominal = currency_data.get('Nominal', 1)
                 value = currency_data.get('Value')
                 if nominal and value:
                     self.currency_cache[code] = value / nominal
             
-            # Сохраняем обновленный кэш
             self._save_cache()
             self.updated_currency = True
             
@@ -66,15 +64,13 @@ class CurrencyHandler:
             Курс валюты к рублю"""
         currency = currency.upper()
         
-        # Обработка исключений для написания валют на HH
+        #если есть исключения обрабатываем (см config.py)
         if currency in CURRENCY_EXCEPTIONS:
             currency = CURRENCY_EXCEPTIONS[currency]
         
-        # Обновляем курсы валют если еще не обновляли
         if not self.updated_currency:
             self._update_currency_rates()
         
-        # Возвращаем курс из кэша
         if currency in self.currency_cache:
             return self.currency_cache[currency]
         
@@ -82,7 +78,7 @@ class CurrencyHandler:
         return 1.0
     
     def convert_to_rub(self, amount: float, currency: str) -> float:
-        """Конвертация суммы в рубли
+        """Конвертация зарплаты из вакансии в рубли
         Param:
             amount: Сумма в исходной валюте
             currency: Код валюты

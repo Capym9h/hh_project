@@ -83,10 +83,8 @@ SOFT_SKILLS = {
 class SkillsExtractor:
 
     def __init__(self):
-        # Инициализация анализатора
         self.morph = pymorphy3.MorphAnalyzer()
-        # Исходные навыки (сохраняем для отладки)
-        self.raw_tech_skills = HARD_SKILLS  # текущий набор навыков
+        self.raw_tech_skills = HARD_SKILLS 
         self.raw_soft_skills = SOFT_SKILLS
         # Нормализованные навыки
         self.tech_skills = self.normalize_skills(self.raw_tech_skills)
@@ -99,7 +97,6 @@ class SkillsExtractor:
         """Нормализация навыков в начальную форму"""
         normalized = {}
         for skill in skills:
-            # Приводим к начальной форме каждое слово в навыке
             words = []
             for word in skill.split():
                 parsed = self.morph.parse(word)[0]
@@ -111,17 +108,14 @@ class SkillsExtractor:
         """Создание регулярного выражения для поиска навыков"""
         escaped_skills = []
         for skill in skills:
-            # Экранирование специальных символов
             escaped = re.escape(skill)
-            # Поддержка разных написаний
             variants = [
                 escaped,
-                escaped.replace(r'\ ', r'[\s\-]?'),  # пробел/дефис
-                escaped.replace(r'\ ', r'[^\w]?')     # любой разделитель
+                escaped.replace(r'\ ', r'[\s\-]?'),
+                escaped.replace(r'\ ', r'[^\w]?')
             ]
             escaped_skills.extend(variants)
         
-        # Сортируем по длине (длинные навыки сначала)
         escaped_skills.sort(key=len, reverse=True)
         pattern = r'\b(' + '|'.join(escaped_skills) + r')\b'
         return re.compile(pattern, re.IGNORECASE)
@@ -129,7 +123,7 @@ class SkillsExtractor:
     def clean_text(self, text: str) -> str:
         """Предобработка текста"""
         text = text.lower()
-        text = re.sub(r'[^\w\s\-+]', ' ', text)  # Удаляем спецсимволы
+        text = re.sub(r'[^\w\s\-+]', ' ', text)
         text = re.sub(r'\s+', ' ', text).strip()
         return text
 
@@ -138,25 +132,21 @@ class SkillsExtractor:
             if not text or skills_type not in ('hard', 'soft'):
                 return []
             
-            # Приводим текст к нижнему регистру
             text_lower = text.lower()
             
             found_skills = []
             
             if skills_type == 'soft':
-                # Ищем мягкие навыки по ключевым словам
                 for skill, keywords in self.soft_skills.items():
                     for keyword in keywords:
                         if re.search(r'\b' + re.escape(keyword) + r'\b', text_lower):
                             found_skills.append(skill)
-                            break  # Не проверяем другие ключевые слова для этого навыка
+                            break
             
             elif skills_type == 'hard':
-                # Ищем технические навыки
                 for skill in self.tech_skills:
                     pattern = r'\b' + re.escape(skill) + r'\b'
                     if re.search(pattern, text_lower):
                         found_skills.append(skill)
             
-            # Удаляем дубликаты и возвращаем
             return sorted(list(set(found_skills))) 
