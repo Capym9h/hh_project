@@ -162,7 +162,7 @@ class VacancyParser:
             'published_at': vacancy_data.get('published_at'),
             'archived': vacancy_data.get('archived'),
             'employer_id': employer.get('id'),
-            'emp_name': vacancy_data.get('employment', {}).get('name'),
+            'emp_name': employer.get('name'), #vacancy_data.get('employment', {}).get('name'),
             'addres': address_raw,
             'is_accredited': employer.get('accredited_it_employer'),
             'is_trusted': employer.get('trusted'),
