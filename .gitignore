@@ -5,3 +5,6 @@ readme.txt
 dag.py
 readme.md
 .env
+resources/hh_sqllite.db
+resources/to_DataLens.csv
+resources/full_df.csv
