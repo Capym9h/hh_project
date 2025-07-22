@@ -116,6 +116,7 @@ SOFT_SKILLS = {
 }
 
 
+
 class SkillsExtractor:
 
     def __init__(self):
